@@ -3,7 +3,8 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var firebase = require("firebase");
-
+const admin = require('firebase-admin');
+var serviceAccount = require("./analytics-firestore-key.json");
 var app = express();
 app.set('port', (process.env.PORT || 3000));
 
@@ -12,23 +13,18 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-var config = {
-  apiKey: "AIzaSyC4HtpVry_bdAD5HJAnTTlXFUbHhSdia44",
-  authDomain: "analytics-d61b6.firebaseapp.com",
-  databaseURL: "https://analytics-d61b6.firebaseio.com",
-  projectId: "analytics-d61b6",
-  storageBucket: "analytics-d61b6.appspot.com",
-  messagingSenderId: "525213599205"
-};
-firebase.initializeApp(config);
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+var db = admin.firestore();
+
 
 
 app.use('/', function(req, res) {
-  firebase.database().ref('/pages/').set({
-    eventsetup:{
-      name: 'Event Setup',
+
+  db.collection('pages').add({
+      name: 'events setup',
       url: 'events20#/registration/events/setup'
-    }
   });
   res.send('Hello world');
 });
